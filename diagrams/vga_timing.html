@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VGA Stream - Timing and Data Flow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 40px;
+            color: black;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            border-bottom: 2px solid black;
+            padding-bottom: 10px;
+        }
+
+        .section {
+            border: 2px solid black;
+            padding: 20px;
+            margin: 30px 0;
+            background: white;
+        }
+
+        .section-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid black;
+            padding-bottom: 5px;
+        }
+
+        .timing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 11px;
+        }
+
+        .timing-table th,
+        .timing-table td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .timing-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .phase-box {
+            border: 2px solid black;
+            padding: 15px;
+            margin: 15px 0;
+            background: white;
+        }
+
+        .phase-title {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid black;
+            padding-bottom: 5px;
+        }
+
+        .phase-content {
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="title">VGA Timing and Data Flow</div>
+
+    <!-- VGA Timing Parameters -->
+    <div class="section">
+        <div class="section-title">VGA Timing Parameters (640×480 @ 60Hz)</div>
+        
+        <table class="timing-table">
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Horizontal</th>
+                    <th>Vertical</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Active</td>
+                    <td>640 pixels</td>
+                    <td>480 lines</td>
+                </tr>
+                <tr>
+                    <td>Front Porch</td>
+                    <td>16</td>
+                    <td>10</td>
+                </tr>
+                <tr>
+                    <td>Sync Pulse</td>
+                    <td>96</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td>Back Porch</td>
+                    <td>48</td>
+                    <td>33</td>
+                </tr>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>800</strong></td>
+                    <td><strong>525</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Operation Phases -->
+    <div class="section">
+        <div class="section-title">Operation Phases</div>
+        
+        <div class="phase-box">
+            <div class="phase-title">Phase 1: Initialization (FIFO Priming)</div>
+            <div class="phase-content">
+                • System starts with priming = 1<br>
+                • Write control accumulates exactly 640 pixels into Buffer 0<br>
+                • VGA timing generator held in reset (vga_rst_n = 0)<br>
+                • Prime counter counts down 640 cycles<br>
+                • Once buffer ready AND prime counter = 0: Release VGA (vga_rst_n = 1)<br>
+                • Switch to DE-locked write mode (priming = 0)
+            </div>
+        </div>
+
+        <div class="phase-box">
+            <div class="phase-title">Phase 2: Normal Operation (Ping-Pong)</div>
+            <div class="phase-content">
+                • <strong>Write Side:</strong> Locks to DE signal from VGA timing generator<br>
+                &nbsp;&nbsp;- Write active when DE = 1<br>
+                &nbsp;&nbsp;- Write line start on DE rising edge<br>
+                &nbsp;&nbsp;- Write line end on DE falling edge<br>
+                • <strong>Read Side:</strong> Consumes pixels synchronized to VGA display<br>
+                &nbsp;&nbsp;- Read active when DE = 1 (consume signal)<br>
+                &nbsp;&nbsp;- First pixel: Line-start bypass (combinational)<br>
+                &nbsp;&nbsp;- Subsequent pixels: Indexed by x coordinate<br>
+                • <strong>Buffer Switching:</strong> Seamless ping-pong between buffers
+            </div>
+        </div>
+
+        <div class="phase-box">
+            <div class="phase-title">Phase 3: Reverse Mode (Optional)</div>
+            <div class="phase-content">
+                • When reverse = 1, each line is read in reverse order<br>
+                • Address calculation:<br>
+                &nbsp;&nbsp;- Forward: mem[r_sel][x] where x = 0 to 639<br>
+                &nbsp;&nbsp;- Reverse: mem[r_sel][639 - x] where x = 0 to 639<br>
+                • Creates horizontal flip effect on display<br>
+                • Reverse flag latched per line (r_reverse)
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Data Flow -->
+    <div class="section">
+        <div class="section-title">Data Flow Example</div>
+        
+        <div class="phase-box">
+            <div class="phase-title">Cycle-by-Cycle Example (Line 0)</div>
+            <div class="phase-content" style="font-family: 'Courier New', monospace;">
+                <strong>Cycle 0 (Line Start):</strong><br>
+                • DE rises → write_line_start = 1, read_line_start = 1<br>
+                • Write: Select Buffer 0, write pixel[0] to mem0[0]<br>
+                • Read: Select Buffer 0 (ready), output mem0[0] via bypass (start_data)<br>
+                <br>
+                <strong>Cycles 1-638:</strong><br>
+                • Write: mem0[x] = in_data (x = 1 to 638)<br>
+                • Read: step_data = mem0[x] (x = 1 to 638)<br>
+                <br>
+                <strong>Cycle 639 (Line End):</strong><br>
+                • Write: mem0[639] = in_data, mark ready0 = 1<br>
+                • Read: step_data = mem0[639], DE falls → read_line_end = 1<br>
+                <br>
+                <strong>Next Line (Line 1):</strong><br>
+                • Write: Switch to Buffer 1, begin writing<br>
+                • Read: Continue with Buffer 0 until line complete, then switch
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

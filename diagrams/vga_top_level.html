@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VGA Stream - Top Level</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 40px;
+            color: black;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            border-bottom: 2px solid black;
+            padding-bottom: 10px;
+        }
+
+        .diagram {
+            position: relative;
+            width: 100%;
+            min-height: 900px;
+        }
+
+        .block {
+            border: 2px solid black;
+            background: white;
+            padding: 15px;
+        }
+
+        .block-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid black;
+            padding-bottom: 5px;
+        }
+
+        .block-content {
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .input-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .input-box {
+            display: inline-block;
+            border: 2px solid black;
+            padding: 12px 20px;
+            margin: 0 15px;
+            background: white;
+        }
+
+        .top-module {
+            border: 2px solid black;
+            padding: 20px;
+            margin: 30px 0;
+            background: white;
+        }
+
+        .sub-block {
+            border: 2px solid black;
+            padding: 12px;
+            margin: 15px 0;
+            background: white;
+        }
+
+        .sub-block-title {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid black;
+            padding-bottom: 3px;
+        }
+
+        .fifo-buffers {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+
+        .buffer {
+            border: 2px solid black;
+            padding: 15px;
+            text-align: center;
+            width: 250px;
+            background: white;
+        }
+
+        .vga-timing {
+            border: 2px solid black;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+            background: white;
+        }
+
+        .output-section {
+            border: 2px solid black;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+            background: white;
+        }
+
+        .output-signals {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .signal-box {
+            border: 1px solid black;
+            padding: 8px 12px;
+            font-size: 10px;
+            background: white;
+        }
+
+        .arrow-down {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 20px;
+        }
+
+        .signal-label {
+            font-size: 10px;
+            text-align: center;
+            margin: 5px 0;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">VGA Image Stream System - Top Level</div>
+    
+    <div class="diagram">
+        <!-- Input Section -->
+        <div class="input-section">
+            <div class="input-box">
+                <div class="block-title">Control</div>
+                <div class="block-content">in_valid</div>
+            </div>
+            <div class="input-box">
+                <div class="block-title">Data Input</div>
+                <div class="block-content">in_data[23:0]<br>RGB Stream</div>
+            </div>
+            <div class="input-box">
+                <div class="block-title">Control</div>
+                <div class="block-content">reverse</div>
+            </div>
+        </div>
+
+        <div class="arrow-down">↓</div>
+        <div class="signal-label">Continuous RGB Stream</div>
+
+        <!-- Top Module -->
+        <div class="top-module">
+            <div class="block-title" style="text-align: center; font-size: 16px;">top_stream.v (Top Module)</div>
+            
+            <div class="sub-block">
+                <div class="sub-block-title">Write Control Logic</div>
+                <div class="block-content">
+                    • Priming: Accumulate one full line (640 pixels)<br>
+                    • Normal: Lock to DE (Data Enable) signal<br>
+                    • Detects DE edges (rise/fall)<br>
+                    • Line counter and buffer selection
+                </div>
+            </div>
+
+            <div class="sub-block">
+                <div class="sub-block-title">Ping-Pong FIFO Buffers</div>
+                <div class="fifo-buffers">
+                    <div class="buffer">
+                        <div class="block-title">Line Buffer 0</div>
+                        <div class="block-content">
+                            640 × 24 bits<br>
+                            ready0 flag
+                        </div>
+                    </div>
+                    <div class="buffer">
+                        <div class="block-title">Line Buffer 1</div>
+                        <div class="block-content">
+                            640 × 24 bits<br>
+                            ready1 flag
+                        </div>
+                    </div>
+                </div>
+                <div class="block-content" style="text-align: center; margin-top: 10px;">
+                    Write Port: Selects free buffer | Read Port: Selects ready buffer<br>
+                    Supports reverse mode (horizontal flip) | Line-start bypass (no latency)
+                </div>
+            </div>
+
+            <div class="sub-block">
+                <div class="sub-block-title">Output Alignment Logic</div>
+                <div class="block-content">
+                    • Line-start bypass: First pixel available immediately (combinational)<br>
+                    • Step data: Subsequent pixels indexed by display column (x)<br>
+                    • Reverse addressing: H_ACTIVE - 1 - x when reverse mode enabled
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow-down">↓</div>
+        <div class="signal-label">Pixel data, x, y, de</div>
+
+        <!-- VGA Timing Generator -->
+        <div class="vga-timing">
+            <div class="block-title" style="font-size: 16px;">VGA Timing Generator</div>
+            <div class="block-content" style="margin-top: 15px;">
+                <strong>Pixel Clock Counter</strong><br>
+                • Horizontal counter: 0 to 799 (H_TOTAL = 800)<br>
+                • Vertical counter: 0 to 524 (V_TOTAL = 525)<br>
+                • Generates: hsync, vsync, de (data enable), x[9:0], y[8:0]<br>
+                • Timing: H_ACTIVE=640, V_ACTIVE=480 @ 640×480 resolution
+            </div>
+        </div>
+
+        <div class="arrow-down">↓</div>
+        <div class="signal-label">VGA Output Signals</div>
+
+        <!-- Output Section -->
+        <div class="output-section">
+            <div class="block-title" style="font-size: 16px;">VGA Output</div>
+            <div class="output-signals">
+                <div class="signal-box">r[7:0]</div>
+                <div class="signal-box">g[7:0]</div>
+                <div class="signal-box">b[7:0]</div>
+                <div class="signal-box">hsync</div>
+                <div class="signal-box">vsync</div>
+                <div class="signal-box">de</div>
+            </div>
+            <div style="margin-top: 20px;">
+                <div class="block-title" style="font-size: 12px;">Status Flags</div>
+                <div class="output-signals">
+                    <div class="signal-box">underflow</div>
+                    <div class="signal-box">overflow</div>
+                    <div class="signal-box">line_mismatch</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

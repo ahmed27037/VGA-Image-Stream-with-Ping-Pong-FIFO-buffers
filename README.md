@@ -21,7 +21,7 @@ The design is synthesizable and can be used for FPGA-based video systems, image 
 
 ### System Block Diagram
 
-![Top-Level Architecture](Diagrams/vga_top_level.html)
+![Top-Level Architecture](diagrams/vga_top_level.jpg)
 
 **What this shows:** The complete VGA streaming system with input RGB stream, ping-pong FIFO buffers, VGA timing generator, and output. The `top_stream` module coordinates data flow between the stream source, FIFO buffering, and VGA output.
 
@@ -33,7 +33,7 @@ The design is synthesizable and can be used for FPGA-based video systems, image 
 
 ### FIFO Buffer Detail
 
-![FIFO Buffer Architecture](Diagrams/vga_fifo_detail.html)
+![FIFO Buffer Architecture](diagrams/vga_fifo_detail.jpg)
 
 **What this shows:** The internal structure of the ping-pong FIFO buffer system. Two line buffers (Buffer 0 and Buffer 1) alternate roles:
 - One buffer receives data from the input stream (write mode)
@@ -49,7 +49,7 @@ The design is synthesizable and can be used for FPGA-based video systems, image 
 
 ### Timing and Data Flow
 
-![VGA Timing](Diagrams/vga_timing.html)
+![VGA Timing](diagrams/vga_timing.jpg)
 
 **What this shows:** VGA timing parameters and data flow through the system. Includes:
 - VGA timing parameters (H_active, V_active, porches, sync pulses)

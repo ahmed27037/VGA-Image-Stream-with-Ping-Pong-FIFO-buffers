@@ -391,9 +391,7 @@ Standard 640×480 VGA timing:
 
 ---
 
-## License
 
-[Specify your license here]
 
 ---
 

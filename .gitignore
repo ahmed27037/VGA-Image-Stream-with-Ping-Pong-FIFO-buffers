@@ -1,0 +1,18 @@
+# Media files - users should add their own
+frames/
+media/frames/
+media/input/
+media/output/
+
+# Large simulation files
+*.vcd
+waves_*.vcd
+
+# Build artifacts
+build/
+*.vvp
+
+# Test artifacts
+*.log
+*_tb
+

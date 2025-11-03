@@ -5,327 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VGA Stream - Ping-Pong FIFO Detail</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Courier New', monospace;
-            background: white;
-            padding: 40px;
-            color: black;
-        }
-
-        .title {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 40px;
-            border-bottom: 2px solid black;
-            padding-bottom: 10px;
-        }
-
-        .section {
-            border: 2px solid black;
-            padding: 20px;
-            margin: 30px 0;
-            background: white;
-        }
-
-        .section-title {
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 15px;
-            border-bottom: 2px solid black;
-            padding-bottom: 5px;
-        }
-
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-top: 20px;
-        }
-
-        .side-title {
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid black;
-            padding-bottom: 5px;
-        }
-
-        .control-block {
-            border: 2px solid black;
-            padding: 15px;
-            margin: 15px 0;
-            background: white;
-        }
-
-        .control-title {
-            font-weight: bold;
-            font-size: 12px;
-            margin-bottom: 8px;
-        }
-
-        .control-content {
-            font-size: 10px;
-            line-height: 1.6;
-        }
-
-        .buffer-container {
-            border: 2px solid black;
-            padding: 15px;
-            margin: 15px 0;
-            background: white;
-        }
-
-        .buffer-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 15px;
-        }
-
-        .buffer-box {
-            border: 2px solid black;
-            padding: 15px;
-            text-align: center;
-            background: white;
-        }
-
-        .buffer-title {
-            font-weight: bold;
-            font-size: 12px;
-            margin-bottom: 10px;
-            border-bottom: 1px solid black;
-            padding-bottom: 5px;
-        }
-
-        .pixel-row {
-            border: 1px solid black;
-            padding: 5px;
-            margin: 3px 0;
-            font-size: 9px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .output-logic {
-            border: 2px solid black;
-            padding: 15px;
-            margin: 15px 0;
-            background: white;
-        }
-
-        .output-item {
-            border: 1px solid black;
-            padding: 10px;
-            margin: 10px 0;
-            background: white;
-        }
-
-        .output-title {
-            font-weight: bold;
-            font-size: 11px;
-            margin-bottom: 5px;
-        }
-
-        .output-desc {
-            font-size: 10px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .operation-flow {
-            border: 2px solid black;
-            padding: 15px;
-            margin: 30px 0;
-            background: white;
-        }
-
-        .flow-step {
-            border-left: 3px solid black;
-            padding-left: 15px;
-            margin: 15px 0;
-            font-size: 11px;
-            line-height: 1.6;
-        }
-
-        .flow-step-number {
-            font-weight: bold;
-            margin-right: 8px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: white; padding: 8px; color: #333; }
+        .title { text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #222; }
+        .section { border: 1.5px solid #333; border-radius: 5px; padding: 5px; margin: 6px 0; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .section-title { font-weight: bold; font-size: 9px; margin-bottom: 4px; color: #222; padding-bottom: 2px; border-bottom: 1.5px solid #666; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
+        .side-title { font-weight: bold; font-size: 8px; margin-bottom: 3px; color: #222; padding-bottom: 2px; border-bottom: 1px solid #ccc; }
+        .control-block { border: 1.5px solid #555; border-radius: 4px; padding: 4px; margin: 4px 0; background: #f0f8ff; }
+        .control-title { font-weight: bold; font-size: 7px; margin-bottom: 2px; color: #222; }
+        .control-content { font-size: 6.5px; line-height: 1.2; color: #555; }
+        .buffer-container { border: 1.5px solid #555; border-radius: 4px; padding: 5px; margin: 4px 0; background: #fff9e6; }
+        .buffer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
+        .buffer-box { border: 1.5px solid #555; border-radius: 4px; padding: 4px; text-align: center; background: white; }
+        .buffer-title { font-weight: bold; font-size: 7px; margin-bottom: 2px; color: #222; padding-bottom: 2px; border-bottom: 1px solid #ccc; }
+        .pixel-row { border: 1px solid #ccc; border-radius: 2px; padding: 2px; margin: 1px 0; font-size: 6px; background: #f9f9f9; }
+        .output-logic { border: 1.5px solid #555; border-radius: 4px; padding: 5px; margin: 4px 0; background: #f5f0ff; }
+        .output-item { border: 1.5px solid #666; border-radius: 3px; padding: 4px; margin: 4px 0; background: white; }
+        .output-title { font-weight: bold; font-size: 7px; margin-bottom: 2px; color: #222; }
+        .output-desc { font-size: 6.5px; color: #555; }
+        .operation-flow { border: 1.5px solid #555; border-radius: 4px; padding: 5px; margin: 6px 0; background: #fff8e8; }
+        .flow-step { border-left: 2px solid #666; border-radius: 2px; padding-left: 6px; margin: 4px 0; font-size: 6.5px; line-height: 1.2; color: #555; }
+        .flow-step-number { font-weight: bold; margin-right: 3px; color: #222; }
     </style>
 </head>
 <body>
     <div class="title">Ping-Pong FIFO Buffer - Detailed Architecture</div>
-
-    <!-- Write and Read Sides -->
     <div class="section">
         <div class="section-title">FIFO Buffer Architecture</div>
-        
         <div class="two-column">
-            <!-- Write Side -->
             <div>
                 <div class="side-title">Write Side (Continuous Source)</div>
-                
                 <div class="control-block">
                     <div class="control-title">Write Control</div>
-                    <div class="control-content">
-                        • Line counter: p_x (0 to H_ACTIVE-1)<br>
-                        • Buffer selection: w_sel (0 or 1)<br>
-                        • Writing state: Active when writing a line<br>
-                        • Line start detection: write_line_start<br>
-                        • Line end detection: write_line_end
-                    </div>
+                    <div class="control-content">• Line counter: p_x (0 to 639)<br>• Buffer select: w_sel (0/1)<br>• Writing state: Active<br>• Line start/end detection</div>
                 </div>
-
                 <div class="control-block">
                     <div class="control-title">Write Operation</div>
-                    <div class="control-content">
-                        • Chooses free buffer (prefer opposite of read buffer)<br>
-                        • Writes pixels when in_valid && write_active<br>
-                        • Marks buffer ready when line complete<br>
-                        • Handles overflow: Error if both buffers busy
-                    </div>
+                    <div class="control-content">• Chooses free buffer<br>• Writes when in_valid && active<br>• Marks ready when line complete<br>• Handles overflow error</div>
                 </div>
             </div>
-
-            <!-- Read Side -->
             <div>
                 <div class="side-title">Read Side (VGA Display)</div>
-                
                 <div class="control-block">
                     <div class="control-title">Read Control</div>
-                    <div class="control-content">
-                        • Column address: read_col = x (from VGA)<br>
-                        • Buffer selection: r_sel (0 or 1)<br>
-                        • Reading state: Active when consuming a line<br>
-                        • Reverse flag: Latched per line<br>
-                        • Line start detection: read_line_start<br>
-                        • Line end detection: read_line_end
-                    </div>
+                    <div class="control-content">• Column: read_col = x<br>• Buffer select: r_sel (0/1)<br>• Reading state: Active<br>• Reverse flag latched<br>• Line start/end detection</div>
                 </div>
-
                 <div class="control-block">
                     <div class="control-title">Read Operation</div>
-                    <div class="control-content">
-                        • Chooses ready buffer (prefer buffer 0)<br>
-                        • Line-start bypass: First pixel immediate (combinational)<br>
-                        • Step output: Indexed by read_col<br>
-                        • Reverse mode: Address = H_ACTIVE - 1 - read_col<br>
-                        • Handles underflow: Error if no ready buffer
-                    </div>
+                    <div class="control-content">• Chooses ready buffer<br>• Line-start bypass: Immediate<br>• Step output: Indexed<br>• Reverse: H_ACTIVE-1-x<br>• Handles underflow error</div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Buffer Structure -->
     <div class="section">
         <div class="section-title">Line Buffer Structure</div>
-        
         <div class="buffer-container">
             <div class="buffer-grid">
                 <div class="buffer-box">
                     <div class="buffer-title">Buffer 0</div>
                     <div class="pixel-row">mem0[0] - Pixel 0</div>
                     <div class="pixel-row">mem0[1] - Pixel 1</div>
-                    <div class="pixel-row">mem0[2] - Pixel 2</div>
-                    <div style="text-align: center; font-size: 9px; margin: 5px 0;">...</div>
+                    <div style="text-align: center; font-size: 6px; margin: 2px 0; color: #777;">...</div>
                     <div class="pixel-row">mem0[639] - Pixel 639</div>
-                    <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid black;">
-                        <div style="font-size: 10px;">ready0: Status flag</div>
-                    </div>
+                    <div style="margin-top: 3px; padding-top: 2px; border-top: 1px solid #ccc; font-size: 6.5px; color: #555;">ready0: Status</div>
                 </div>
-
                 <div class="buffer-box">
                     <div class="buffer-title">Buffer 1</div>
                     <div class="pixel-row">mem1[0] - Pixel 0</div>
                     <div class="pixel-row">mem1[1] - Pixel 1</div>
-                    <div class="pixel-row">mem1[2] - Pixel 2</div>
-                    <div style="text-align: center; font-size: 9px; margin: 5px 0;">...</div>
+                    <div style="text-align: center; font-size: 6px; margin: 2px 0; color: #777;">...</div>
                     <div class="pixel-row">mem1[639] - Pixel 639</div>
-                    <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid black;">
-                        <div style="font-size: 10px;">ready1: Status flag</div>
-                    </div>
+                    <div style="margin-top: 3px; padding-top: 2px; border-top: 1px solid #ccc; font-size: 6.5px; color: #555;">ready1: Status</div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Output Logic -->
     <div class="section">
         <div class="section-title">Output Generation Logic</div>
-        
         <div class="output-logic">
             <div class="output-item">
                 <div class="output-title">Line-Start Bypass (Combinational)</div>
-                <div class="output-desc">
-                    start_valid = read_line_start && consume && (ready0 || ready1)<br>
-                    start_data = (use_buf0) ? mem0[reverse?639:0] : mem1[reverse?639:0]<br>
-                    Available same cycle as read_line_start assertion
-                </div>
+                <div class="output-desc">start_valid = read_line_start && consume && (ready0||ready1)<br>start_data = (use_buf0) ? mem0[reverse?639:0] : mem1[reverse?639:0]</div>
             </div>
-
             <div class="output-item">
                 <div class="output-title">Step Output (Indexed Read)</div>
-                <div class="output-desc">
-                    step_valid = reading && consume<br>
-                    col_fwd = read_col<br>
-                    col_rev = H_ACTIVE - 1 - read_col<br>
-                    step_data = (r_sel==0) ? mem0[reverse?col_rev:col_fwd] : mem1[reverse?col_rev:col_fwd]
-                </div>
+                <div class="output-desc">step_valid = reading && consume<br>col_fwd = read_col | col_rev = H_ACTIVE-1-read_col<br>step_data = (r_sel==0) ? mem0[reverse?col_rev:col_fwd] : mem1[reverse?col_rev:col_fwd]</div>
             </div>
-
             <div class="output-item">
                 <div class="output-title">Registered Output</div>
-                <div class="output-desc">
-                    out_valid: Registered version of step_valid<br>
-                    out_data: Registered version of step_data<br>
-                    Updated every consume cycle when reading
-                </div>
+                <div class="output-desc">out_valid: Registered step_valid | out_data: Registered step_data</div>
             </div>
         </div>
     </div>
-
-    <!-- Operation Flow -->
     <div class="section">
         <div class="section-title">Operation Flow</div>
-        
         <div class="operation-flow">
-            <div class="flow-step">
-                <span class="flow-step-number">1.</span>
-                <strong>Write Side:</strong> Continuously fills one buffer at a time. When write_line_start, selects free buffer and begins writing pixels.
-            </div>
-            
-            <div class="flow-step">
-                <span class="flow-step-number">2.</span>
-                <strong>Line Complete:</strong> When 640 pixels written (or write_line_end), marks buffer as ready (ready0 or ready1 = 1).
-            </div>
-            
-            <div class="flow-step">
-                <span class="flow-step-number">3.</span>
-                <strong>Read Side:</strong> When read_line_start, selects ready buffer (prefers buffer 0 if both ready). Outputs first pixel immediately via bypass.
-            </div>
-            
-            <div class="flow-step">
-                <span class="flow-step-number">4.</span>
-                <strong>Normal Read:</strong> Subsequent pixels read using read_col index. Forward: mem[r_sel][read_col], Reverse: mem[r_sel][H_ACTIVE-1-read_col].
-            </div>
-            
-            <div class="flow-step">
-                <span class="flow-step-number">5.</span>
-                <strong>Line End:</strong> When read_line_end, marks buffer as not ready, releases buffer for writing.
-            </div>
-            
-            <div class="flow-step">
-                <span class="flow-step-number">6.</span>
-                <strong>Ping-Pong:</strong> While reading from one buffer, writing continues to the other buffer. Seamless switching between buffers.
-            </div>
+            <div class="flow-step"><span class="flow-step-number">1.</span><strong>Write:</strong> Fills one buffer. On write_line_start, selects free buffer, writes pixels.</div>
+            <div class="flow-step"><span class="flow-step-number">2.</span><strong>Line Complete:</strong> After 640 pixels, marks buffer ready (ready0/ready1=1).</div>
+            <div class="flow-step"><span class="flow-step-number">3.</span><strong>Read:</strong> On read_line_start, selects ready buffer, outputs first pixel via bypass.</div>
+            <div class="flow-step"><span class="flow-step-number">4.</span><strong>Normal Read:</strong> Subsequent pixels via read_col index. Forward: mem[r_sel][read_col], Reverse: mem[r_sel][639-read_col].</div>
+            <div class="flow-step"><span class="flow-step-number">5.</span><strong>Line End:</strong> On read_line_end, marks buffer not ready, releases for writing.</div>
+            <div class="flow-step"><span class="flow-step-number">6.</span><strong>Ping-Pong:</strong> While reading one buffer, writing continues to the other.</div>
         </div>
     </div>
 </body>
 </html>
-

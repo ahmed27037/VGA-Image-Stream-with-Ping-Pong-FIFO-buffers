@@ -130,4 +130,76 @@ Reverse mode reads buffer addresses backward for horizontal flip.
 
 **Status flags high:** Check timing - underflow means input too slow, overflow means too fast.
 
+<<<<<<< HEAD
 **No PPM output:** Verify `media/frames/` directory exists.
+=======
+**"gtkwave not found"**
+- Install GTKwave and ensure it's in your PATH
+- Or manually open the `.vcd` file: `gtkwave waves_top_stream.vcd`
+
+**"Python script not found"**
+- Ensure Python 3 is installed
+- Install required packages: `pip install opencv-python numpy`
+
+**Status flags showing errors**
+- `underflow`: Input stream too slow - increase input data rate
+- `overflow`: Input stream too fast - check FIFO buffer size
+- `line_mismatch`: Buffer control logic error - check write/read buffer selection
+
+**PPM file not generated**
+- Check that the testbench completed successfully
+- Verify output directory exists: `media/frames/`
+
+**Video conversion issues**
+- Ensure FFmpeg is installed for video operations
+- Check input video format is supported
+- Verify video dimensions match specified width/height
+
+---
+
+## Design Details
+
+### Ping-Pong Buffer Operation
+
+1. **Initialization**: Both buffers start empty
+2. **First Line**: Buffer 0 receives data while VGA waits
+3. **Buffer Switch**: When Buffer 0 has a complete line, switch read to Buffer 0 and write to Buffer 1
+4. **Continuous Operation**: Buffers alternate roles each line
+5. **Reverse Mode**: When enabled, read buffer addresses in reverse order
+
+### VGA Timing
+
+Standard 640×480 VGA timing:
+- **Pixel Clock**: 25.175 MHz (typical)
+- **Horizontal**: 800 pixels total (640 active + 160 blanking)
+- **Vertical**: 525 lines total (480 active + 45 blanking)
+- **Refresh Rate**: 60 Hz
+
+### Data Flow
+
+1. Input stream provides RGB24 pixels with `in_valid`/`in_ready` handshaking
+2. FIFO buffers pixels line-by-line into alternating buffers
+3. VGA timing generator requests pixels at correct timing
+4. FIFO supplies pixels from the read buffer
+5. Output pixels are synchronized with HSYNC/VSYNC/DE signals
+
+---
+
+## Future Enhancements
+
+- Support for different video resolutions (800×600, 1024×768, etc.)
+- Configurable FIFO buffer depth
+- Additional video processing modes (vertical flip, rotation)
+- AXI-Stream interface compatibility
+- FPGA synthesis scripts and constraints
+
+---
+
+
+
+---
+
+## Contributing
+
+Contributions are welcome! Please ensure all simulations pass before submitting pull requests.
+>>>>>>> f77c92343282e03c2612541feaa23fb7435e2bbb

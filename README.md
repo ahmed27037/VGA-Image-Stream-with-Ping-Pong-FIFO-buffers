@@ -130,9 +130,8 @@ Reverse mode reads buffer addresses backward for horizontal flip.
 
 **Status flags high:** Check timing - underflow means input too slow, overflow means too fast.
 
-<<<<<<< HEAD
 **No PPM output:** Verify `media/frames/` directory exists.
-=======
+
 **"gtkwave not found"**
 - Install GTKwave and ensure it's in your PATH
 - Or manually open the `.vcd` file: `gtkwave waves_top_stream.vcd`
@@ -202,4 +201,3 @@ Standard 640×480 VGA timing:
 ## Contributing
 
 Contributions are welcome! Please ensure all simulations pass before submitting pull requests.
->>>>>>> f77c92343282e03c2612541feaa23fb7435e2bbb

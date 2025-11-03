@@ -220,23 +220,6 @@ flowchart LR
 
 #### Output Signal Summary
 
-```mermaid
-flowchart TD
-    X["Pixel Counter X<br/>0 to 799"]
-    Y["Line Counter Y<br/>0 to 524"]
-    
-    HSYNC["<b>HSYNC OUTPUT</b><br/>hsync = 0 when X in 656-751<br/>hsync = 1 otherwise"]
-    VSYNC["<b>VSYNC OUTPUT</b><br/>vsync = 0 when Y in 490-491<br/>vsync = 1 otherwise"]
-    DE["<b>DATA ENABLE OUTPUT</b><br/>de = 1 when X in 0-639 AND Y in 0-479<br/>de = 0 otherwise"]
-    RGB["<b>RGB OUTPUT</b><br/>RGB = pixel_data when de = 1<br/>RGB = 0 black when de = 0"]
-    
-    X --> HSYNC
-    Y --> VSYNC
-    X --> DE
-    Y --> DE
-    DE --> RGB
-```
-
 Standard VGA timing with HSYNC, VSYNC, and data enable signals. The design supports 640×480 @ 60Hz by default.
 
 ---
